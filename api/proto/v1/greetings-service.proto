@@ -1,0 +1,47 @@
+syntax = "proto3";
+package v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+	info: {
+		title: "Greetings Service";
+    version: "1.0";
+    contact: {
+      name: "Testing Greetings Service";
+      url: "https://github.com/sunkuet02";
+      email: "sunkuet02@gmail.com";
+    };
+  };
+  schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+  responses: {
+    key: "404";
+    value: {
+      description: "Returned when the resource does not exist.";
+      schema: {
+        json_schema: {
+          type: STRING;
+        }
+      }
+    }
+  }
+};
+
+message SayHelloRequest {
+  string name = 1;
+}
+
+message SayHelloResponse {
+  string message = 1;
+}
+
+service GreetingsService {
+  rpc SayHello (SayHelloRequest) returns (SayHelloResponse) {
+    option (google.api.http) = {
+      get: "/v1/hello"
+    };
+  }
+}
