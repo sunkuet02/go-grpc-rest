@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"context"
-	"flag"
 	"fmt"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/spf13/viper"
 	"github.com/sunkuet02/go-grpc-rest/pkg/logger"
 	"github.com/sunkuet02/go-grpc-rest/pkg/protocol/grpc"
 	"github.com/sunkuet02/go-grpc-rest/pkg/protocol/rest"
@@ -20,16 +22,39 @@ type Config struct {
 	LogTimeFormat string
 }
 
+func init() {
+	viper.SetConfigFile(`config/config.json`)
+	err := viper.ReadInConfig()
+
+	if err != nil {
+		panic(err)
+	}
+
+	if viper.GetBool(`debug`) {
+		fmt.Println("Service RUN on DEBUG mode")
+	}
+
+}
+
 func RunServer() error {
 	ctx := context.Background()
 
 	var cfg Config
 
-	flag.StringVar(&cfg.GRPCPort, "grpc-port", "", "gRPC port to bind")
-	flag.StringVar(&cfg.HTTPPort, "http-port", "", "HTTP port to bind")
-	flag.IntVar(&cfg.LogLevel, "log-level", 0, "Global log level")
-	flag.StringVar(&cfg.LogTimeFormat, "log-time-format", "", "Print time format for logger")
-	flag.Parse()
+	dbHost := viper.GetString(`database.host`)
+	dbPort := viper.GetString(`database.port`)
+	dbUser := viper.GetString(`database.user`)
+	dbPass := viper.GetString(`database.pass`)
+	dbName := viper.GetString(`database.name`)
+	connectionString := dbUser + ":" + dbPass + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName + "?charset=utf8&parseTime=True&loc=Local"
+	db, err := gorm.Open("mysql", connectionString)
+	defer db.Close()
+	if err != nil {
+		return fmt.Errorf("Invalid database connection : %s\n", err)
+	}
+
+	cfg.GRPCPort = viper.GetString(`server.grpc-port`)
+	cfg.HTTPPort = viper.GetString(`server.http-port`)
 
 	if len(cfg.GRPCPort) == 0 {
 		return fmt.Errorf("Invalid TCP port for gRPC based server: '%s'", cfg.GRPCPort)
@@ -39,6 +64,8 @@ func RunServer() error {
 		return fmt.Errorf("Invalid TCP port for HTTP based server: '%s'", cfg.HTTPPort)
 	}
 
+	cfg.LogLevel = viper.GetInt(`log.level`)
+	cfg.LogTimeFormat = viper.GetString(`log.time-format`)
 	if err := logger.Init(cfg.LogLevel, cfg.LogTimeFormat); err != nil {
 		return fmt.Errorf("Failed to initialize logger: %v\n", err)
 	}

@@ -1,0 +1,21 @@
+{
+  "log": {
+    "debug": true,
+    "level": 0,
+    "time-format": "2006-01-02 15:04:05.000"
+  },
+  "server": {
+    "grpc-port": "9091",
+    "http-port": "9090"
+  },
+  "context":{
+    "timeout":2
+  },
+  "database": {
+    "host": "localhost",
+    "port": "3306",
+    "user": "root",
+    "pass": "root",
+    "name": "grpctesting"
+  }
+}
