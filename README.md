@@ -1,4 +1,4 @@
-###Go-gRPC-REST
+### Go-gRPC-REST
 This is a very basic project containing only few mock methods to 
 test gRPC and REST with golang.
 
@@ -6,7 +6,7 @@ Mainly [go-grpc-http-rest-microservice-tutorial](https://github.com/amsokol/go-g
 is followed to see basics and project structure.
 
 ***
-###Compile and Build
+### Compile and Build
 You can generate the protocol buffers and gateway go files by running the
 below command in the root directory of the project.
 ```bash
@@ -26,7 +26,7 @@ Then you can run the server file by executing
 
 
 
-###Used Libraries
+### Used Libraries
 - [golang/protobuf](https://github.com/golang/protobuf) for Google's protocol buffers
 - [grpc-ecosystem/grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) for gRPC to JSON proxy generator
 - [google/uuid](https://github.com/google/uuid) for uuid genenaration
