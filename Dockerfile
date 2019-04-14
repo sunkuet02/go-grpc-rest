@@ -5,14 +5,28 @@ WORKDIR $GOPATH/src/github.com/sunkuet02/go-grpc-rest
 
 COPY . .
 
-RUN apk --update add curl git gcc make unzip
-RUN go get -d -v ./...
-RUN go install -v ./...
+RUN apk update && apk upgrade && \
+    apk --update add --no-cache bash curl git gcc make unzip protobuf
 
-RUN PROTOC_ZIP=protoc-3.7.1-linux-x86_64.zip \
-    && curl -OL https://github.com/google/protobuf/releases/download/v3.7.1/$PROTOC_ZIP \
-    && unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
+RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
+    && go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
+    && go get -u github.com/golang/protobuf/protoc-gen-go
+
+RUN go get -d -v ./...
 
 RUN make
 
+#Deployment
+FROM alpine:latest
+
+RUN apk update && apk upgrade && \
+    apk --update --no-cache add tzdata && \
+    mkdir /deployment
+
+WORKDIR /deployment
+
 EXPOSE 9090
+
+COPY --from=builder /go/src/github.com/sunkuet02/go-grpc-rest /deployment
+
+CMD /deployment/grpc-rest
